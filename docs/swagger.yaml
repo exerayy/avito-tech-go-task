@@ -1,0 +1,476 @@
+definitions:
+  model.AddTeamRequest:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/model.TeamMember'
+        type: array
+      team_name:
+        example: payments
+        type: string
+    required:
+    - members
+    - team_name
+    type: object
+  model.CreatePullRequestRequest:
+    properties:
+      author_id:
+        example: u1
+        type: string
+      pull_request_id:
+        example: pr-1001
+        type: string
+      pull_request_name:
+        example: Add search
+        type: string
+    required:
+    - author_id
+    - pull_request_id
+    - pull_request_name
+    type: object
+  model.CreatePullRequestResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/model.PullRequest'
+    type: object
+  model.ErrorDetail:
+    properties:
+      code:
+        example: NOT_FOUND
+        type: string
+      message:
+        example: resource not found
+        type: string
+    type: object
+  model.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/model.ErrorDetail'
+    type: object
+  model.GetReviewUserResponse:
+    properties:
+      pull_requests:
+        items:
+          $ref: '#/definitions/model.PullRequestShort'
+        type: array
+      user_id:
+        example: u2
+        type: string
+    type: object
+  model.GetStatsResponse:
+    properties:
+      user_review_stats:
+        items:
+          $ref: '#/definitions/model.UserStat'
+        type: array
+    type: object
+  model.MergePullRequestRequest:
+    properties:
+      pull_request_id:
+        example: pr-1001
+        type: string
+    required:
+    - pull_request_id
+    type: object
+  model.MergePullRequestResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/model.PullRequest'
+    type: object
+  model.PullRequest:
+    properties:
+      assigned_reviewers:
+        items:
+          type: string
+        type: array
+      author_id:
+        example: u1
+        type: string
+      mergedAt:
+        type: string
+      pull_request_id:
+        example: pr-1001
+        type: string
+      pull_request_name:
+        example: Add search
+        type: string
+      status:
+        example: OPEN
+        type: string
+    type: object
+  model.PullRequestShort:
+    properties:
+      author_id:
+        example: u1
+        type: string
+      pull_request_id:
+        example: pr-1001
+        type: string
+      pull_request_name:
+        example: Add search
+        type: string
+      status:
+        example: OPEN
+        type: string
+    type: object
+  model.ReassignPullRequestRequest:
+    properties:
+      old_reviewer_id:
+        example: u2
+        type: string
+      pull_request_id:
+        example: pr-1001
+        type: string
+    required:
+    - old_reviewer_id
+    - pull_request_id
+    type: object
+  model.ReassignPullRequestResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/model.PullRequest'
+      replaced_by:
+        example: u5
+        type: string
+    type: object
+  model.SetIsActiveUserRequest:
+    properties:
+      is_active:
+        example: false
+        type: boolean
+      user_id:
+        example: u2
+        type: string
+    required:
+    - is_active
+    - user_id
+    type: object
+  model.SetIsActiveUserResponse:
+    properties:
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.Team:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/model.TeamMember'
+        type: array
+      team_name:
+        example: payments
+        type: string
+    type: object
+  model.TeamMember:
+    properties:
+      is_active:
+        example: true
+        type: boolean
+      user_id:
+        example: u1
+        type: string
+      username:
+        example: Alice
+        type: string
+    required:
+    - is_active
+    - user_id
+    - username
+    type: object
+  model.User:
+    properties:
+      is_active:
+        example: false
+        type: boolean
+      team_name:
+        example: backend
+        type: string
+      user_id:
+        example: u2
+        type: string
+      username:
+        example: Bob
+        type: string
+    type: object
+  model.UserStat:
+    properties:
+      active_reviews:
+        example: 1
+        type: integer
+      merged_reviews:
+        example: 1
+        type: integer
+      total_reviews:
+        example: 2
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        example: u2
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /pullRequests/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: pull_request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePullRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreatePullRequestResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать PR и автоматически назначить до 2 ревьюверов из команды автора
+      tags:
+      - PullRequests
+  /pullRequests/merge:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: pull_request_id
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.MergePullRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MergePullRequestResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Пометить PR как MERGED (идемпотентная операция)
+      tags:
+      - PullRequests
+  /pullRequests/reassign:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: pull_request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ReassignPullRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ReassignPullRequestResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Переназначить конкретного ревьювера на другого из его команды
+      tags:
+      - PullRequests
+  /teams/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: team
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Team'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать команду с участниками (создаёт/обновляет пользователей)
+      tags:
+      - Teams
+  /teams/get:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: team_name
+        in: query
+        name: team_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Team'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить команду с участниками
+      tags:
+      - Teams
+  /users/getReview:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: user_id
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetReviewUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить PR'ы, где пользователь назначен ревьювером
+      tags:
+      - Users
+  /users/getStatsHandler:
+    get:
+      consumes:
+      - application/json
+      description: limit = 0 - убирает лимит
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetStatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить cтатистику пользователей по PR
+      tags:
+      - Users
+  /users/setIsActive:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SetIsActiveUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SetIsActiveUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Установить флаг активности пользователя
+      tags:
+      - Users
+swagger: "2.0"
