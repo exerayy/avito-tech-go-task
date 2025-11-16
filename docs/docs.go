@@ -317,7 +317,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/getStatsHandler": {
+        "/users/getStats": {
             "get": {
                 "description": "limit = 0 - убирает лимит",
                 "consumes": [

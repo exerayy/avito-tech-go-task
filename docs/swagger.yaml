@@ -407,7 +407,7 @@ paths:
       summary: Получить PR'ы, где пользователь назначен ревьювером
       tags:
       - Users
-  /users/getStatsHandler:
+  /users/getStats:
     get:
       consumes:
       - application/json

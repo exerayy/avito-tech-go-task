@@ -100,7 +100,7 @@ func (s *ApiService) GetReviewerUserHandler(ctx *gin.Context) {
 //	@Failure		400	{object}	model.ErrorResponse
 //	@Failure		404	{object}	model.ErrorResponse
 //	@Failure		500	{object}	model.ErrorResponse
-//	@Router			/users/getStatsHandler [get]
+//	@Router			/users/getStats [get]
 func (s *ApiService) GetStatsHandler(ctx *gin.Context) {
 	limit := ctx.Query("limit")
 	limitInt, err := strconv.Atoi(limit)
