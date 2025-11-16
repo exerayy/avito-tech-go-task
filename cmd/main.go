@@ -47,7 +47,7 @@ func main() {
 	{
 		users.POST("setIsActive", c.SetIsActiveUserHandler)
 		users.GET("getReview", c.GetReviewerUserHandler)
-		users.GET("getUserReviewStats", c.GetStatsHandler)
+		users.GET("getStats", c.GetStatsHandler)
 	}
 	pullRequests := r.Group("/pullRequests")
 	{
