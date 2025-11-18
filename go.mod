@@ -1,8 +1,6 @@
 module avito-tech-go-task
 
-go 1.23.0
-
-toolchain go1.24.10
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.11.0
