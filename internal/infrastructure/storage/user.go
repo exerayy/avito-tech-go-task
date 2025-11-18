@@ -71,7 +71,7 @@ func (r *UserRepo) SetIsActive(ctx context.Context, userID string, isActive bool
 		return fmt.Errorf("update is_active user tx.ExecContext: %w", err)
 	}
 
-	if isActive == true {
+	if isActive {
 		return nil
 	}
 

@@ -35,3 +35,7 @@ up-and-test:
 	make goose-up
 	make test-integration
 	make compose-rm
+
+.PHONY: lint
+lint:
+	golangci-lint run -c .golangci.yml
