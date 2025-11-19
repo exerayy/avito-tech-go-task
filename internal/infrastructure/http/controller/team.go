@@ -86,3 +86,42 @@ func (s *ApiService) GetTeamHandler(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, res)
 }
+
+// DeactivateTeamHandler godoc
+//
+//	@Summary		Деактивировать команду
+//	@Description
+//	@Tags			Teams
+//	@Accept			json
+//	@Produce		json
+//	@Param			team_name	query		string	true	"team_name"
+//	@Success		200	{object}	model.DeactivateTeamResponse
+//	@Failure		400	{object}	model.ErrorResponse
+//	@Failure		404	{object}	model.ErrorResponse
+//	@Failure		500	{object}	model.ErrorResponse
+//	@Router			/teams/deactivate [patch]
+func (s *ApiService) DeactivateTeamHandler(ctx *gin.Context) {
+	teamName := ctx.Query("team_name")
+	if teamName == "" {
+		ctx.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Error: &model.ErrorDetail{
+				Code:    "INVALID_REQUEST",
+				Message: "team_name can't be empty",
+			},
+		})
+		return
+	}
+
+	res, err := s.DeactivateTeam(ctx, teamName)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Error: &model.ErrorDetail{
+				Code:    "INTERNAL_ERROR",
+				Message: err.Error(),
+			},
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}

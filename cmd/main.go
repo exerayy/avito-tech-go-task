@@ -42,6 +42,7 @@ func main() {
 	{
 		teams.POST("add", c.AddTeamHandler)
 		teams.GET("get", c.GetTeamHandler)
+		teams.PATCH("deactivate", c.DeactivateTeamHandler)
 	}
 	users := r.Group("/users")
 	{

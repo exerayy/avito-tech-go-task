@@ -183,3 +183,12 @@ func (s *PRService) GetStats(ctx context.Context, limit uint64) ([]domain.UserSt
 
 	return userStats, nil
 }
+
+func (s *PRService) DeactivateTeam(ctx context.Context, teamName string) ([]domain.PullRequest, error) {
+	userStats, err := s.teamRepo.DeactivateTeam(ctx, teamName)
+	if err != nil {
+		return nil, err
+	}
+
+	return userStats, nil
+}

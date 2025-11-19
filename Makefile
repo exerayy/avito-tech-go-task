@@ -31,7 +31,7 @@ compose-rm:
 .PHONY: up-and-test
 up-and-test:
 	make compose-up
-	./scripts/wait_pg.sh
+	chmod +x ./scripts/wait_pg.sh
 	make goose-up
 	make test-integration
 	make compose-rm

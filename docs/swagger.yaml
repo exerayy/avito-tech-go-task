@@ -33,6 +33,13 @@ definitions:
       pr:
         $ref: '#/definitions/model.PullRequest'
     type: object
+  model.DeactivateTeamResponse:
+    properties:
+      pull_requests:
+        items:
+          $ref: '#/definitions/model.PullRequest'
+        type: array
+    type: object
   model.ErrorDetail:
     properties:
       code:
@@ -341,6 +348,38 @@ paths:
           schema:
             $ref: '#/definitions/model.ErrorResponse'
       summary: Создать команду с участниками (создаёт/обновляет пользователей)
+      tags:
+      - Teams
+  /teams/deactivate:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: team_name
+        in: query
+        name: team_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeactivateTeamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Деактивировать команду
       tags:
       - Teams
   /teams/get:

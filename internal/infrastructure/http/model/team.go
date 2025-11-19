@@ -31,3 +31,7 @@ func (tm *TeamMember) Validate() bool {
 
 	return true
 }
+
+type DeactivateTeamResponse struct {
+	PullRequests []PullRequest `json:"pull_requests"`
+}

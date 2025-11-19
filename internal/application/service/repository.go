@@ -10,8 +10,7 @@ import (
 type TeamRepository interface {
 	Save(ctx context.Context, team domain.Team, teamMembers []domain.User) (err error)
 	FindByName(ctx context.Context, teamName string) ([]domain.User, error)
-
-	//MassDeactivateTeam(ctx context.Context, teamName string) (err error)
+	DeactivateTeam(ctx context.Context, teamName string) ([]domain.PullRequest, error)
 }
 
 type PullRequestRepository interface {

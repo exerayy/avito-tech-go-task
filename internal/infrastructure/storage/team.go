@@ -138,47 +138,63 @@ func (r *TeamRepo) FindByName(ctx context.Context, teamName string) ([]domain.Us
 	return users, nil
 }
 
-//func (r *TeamRepo) MassDeactivateTeam(ctx context.Context, teamName string) (err error) {
-//	tx, err := r.db.Begin(ctx)
-//	if err != nil {
-//		return fmt.Errorf("db.Begin: %w", err)
-//	}
-//	defer func() {
-//		if err == nil {
-//			err = tx.Commit()
-//			if err != nil {
-//				err = fmt.Errorf("tx.Commit: %w", err)
-//			}
-//		}
-//		if err != nil {
-//			rbErr := tx.Rollback()
-//			if rbErr != nil {
-//				err = fmt.Errorf("%w tx.Rollback: %s", err, rbErr)
-//			}
-//		}
-//	}()
-//
-//	_, err = tx.ExecContext(ctx,
-//		`UPDATE users
-//		SET is_active = FALSE
-//		WHERE team_name = $1 AND is_active = TRUE`,
-//		teamName,
-//	)
-//	if err != nil {
-//		return fmt.Errorf("update is_active user tx.ExecContext: %w", err)
-//	}
-//
-//	_, err = tx.ExecContext(
-//		ctx,
-//		`UPDATE pull_requests
-//		SET reviewers_ids = array_remove(reviewers_ids, $1)
-//		WHERE $1 = ANY(reviewers_ids) AND status = $2`,
-//		teamName,
-//		domain.PRStatusOpen,
-//	)
-//	if err != nil {
-//		return fmt.Errorf("remove not active reviewer tx.ExecContext: %w", err)
-//	}
-//
-//	return err
-//}
+func (r *TeamRepo) DeactivateTeam(ctx context.Context, teamName string) ([]domain.PullRequest, error) {
+	rows, err := r.db.Query(ctx,
+		`WITH updated_users AS (
+			UPDATE users
+			SET is_active = FALSE
+			WHERE team_name = $1
+			  AND is_active = TRUE
+			RETURNING id
+		),
+		open_prs AS (
+			SELECT pr.id, pr.reviewers_ids
+			FROM pull_requests pr
+			WHERE pr.status = 'OPEN'::pr_status
+			  AND EXISTS (
+				  SELECT 1
+				  FROM updated_users uu
+				  WHERE uu.id = ANY(pr.reviewers_ids)
+			  )
+		),
+		new_reviewers AS (
+			SELECT u.id
+			FROM users u
+			WHERE u.team_name != $1
+			  AND u.is_active = TRUE
+			ORDER BY RANDOM()
+			LIMIT 1
+		)
+		UPDATE pull_requests pr
+		SET reviewers_ids = ARRAY(SELECT id FROM new_reviewers)
+		FROM open_prs op
+		WHERE pr.id = op.id
+		  AND EXISTS (SELECT 1 FROM new_reviewers)
+		RETURNING pr.id, pr.name, pr.author_id, pr.status, pr.reviewers_ids, pr.merged_at;`,
+		teamName,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("deactivate team db.Exec: %w", err)
+	}
+
+	defer rows.Close()
+
+	prs := make([]domain.PullRequest, 0, 20)
+	for rows.Next() {
+		var pullRequest PullRequest
+		if err := rows.Scan(
+			&pullRequest.id,
+			&pullRequest.name,
+			&pullRequest.authorID,
+			&pullRequest.status,
+			&pullRequest.reviewersIDs,
+			&pullRequest.mergedAt,
+		); err != nil {
+			return nil, fmt.Errorf("DeactivateTeam rows.Next: %w", err)
+		}
+
+		prs = append(prs, pullRequest.toDomain())
+	}
+
+	return prs, nil
+}

@@ -15,6 +15,7 @@ type PRService interface {
 	AddTeam(ctx context.Context, teamName string, members []model.TeamMember) error
 	GetTeam(ctx context.Context, teamName string) ([]domain.User, error)
 	GetStats(ctx context.Context, limit uint64) ([]domain.UserStat, error)
+	DeactivateTeam(ctx context.Context, teamName string) ([]domain.PullRequest, error)
 }
 
 type ApiService struct {
@@ -143,6 +144,24 @@ func (s *ApiService) GetStats(ctx context.Context, limit uint64) (*model.GetStat
 
 	res := &model.GetStatsResponse{
 		UserStats: jsonUserStats,
+	}
+
+	return res, nil
+}
+
+func (s *ApiService) DeactivateTeam(ctx context.Context, teamName string) (*model.DeactivateTeamResponse, error) {
+	users, err := s.prService.DeactivateTeam(ctx, teamName)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonPRs := make([]model.PullRequest, 0, len(users))
+	for _, u := range users {
+		jsonPRs = append(jsonPRs, u.ToJSON())
+	}
+
+	res := &model.DeactivateTeamResponse{
+		PullRequests: jsonPRs,
 	}
 
 	return res, nil

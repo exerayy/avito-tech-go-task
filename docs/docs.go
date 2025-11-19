@@ -219,6 +219,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/teams/deactivate": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Деактивировать команду",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "team_name",
+                        "name": "team_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeactivateTeamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/teams/get": {
             "get": {
                 "consumes": [
@@ -466,6 +515,17 @@ const docTemplate = `{
             "properties": {
                 "pr": {
                     "$ref": "#/definitions/model.PullRequest"
+                }
+            }
+        },
+        "model.DeactivateTeamResponse": {
+            "type": "object",
+            "properties": {
+                "pull_requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PullRequest"
+                    }
                 }
             }
         },
