@@ -1,7 +1,7 @@
 ## **Клонирование сервиса**
 ~~~
-git clone https://github.com/exerayy/avito-tech-go-task
-cd avito-tech-go-task
+git clone https://github.com/exerayy/avito-pr-assigner
+cd avito-pr-assigner
 ~~~
 
 ## **Запуск сервиса**
